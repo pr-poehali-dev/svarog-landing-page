@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
 import {
   Accordion,
   AccordionContent,
@@ -16,19 +13,8 @@ import { getUser } from '@/lib/api';
 const NAV = [
   { id: 'hero', label: 'Главная' },
   { id: 'flow', label: 'Как это работает' },
-  { id: 'calc', label: 'Калькулятор' },
-  { id: 'pricing', label: 'Тарифы' },
   { id: 'faq', label: 'Вопросы' },
   { id: 'contacts', label: 'Контакты' },
-];
-
-const SERVICES = [
-  { icon: 'Globe', name: 'Домен', price: 1200, unit: '/год' },
-  { icon: 'Server', name: 'Хостинг', price: 6000, unit: '/год' },
-  { icon: 'Database', name: 'База данных', price: 4800, unit: '/год' },
-  { icon: 'Bug', name: 'Тестировщик', price: 25000, unit: '/мес' },
-  { icon: 'Palette', name: 'Дизайнер', price: 35000, unit: '/мес' },
-  { icon: 'ShieldCheck', name: 'Поддержка 24/7', price: 15000, unit: '/мес' },
 ];
 
 const FLOW = [
@@ -38,12 +24,6 @@ const FLOW = [
   { icon: 'MessagesSquare', t: 'Переговоры о цене', d: 'В чате обсуждаете стоимость разработки со Сварогом' },
   { icon: 'BadgeCheck', t: 'Согласие на оплату', d: 'Подтверждаете — заказ попадает к оператору Никите' },
   { icon: 'Rocket', t: 'Старт разработки', d: 'Никита подтверждает оплату и согласует сроки и этапы' },
-];
-
-const TARIFFS = [
-  { name: 'Старт', price: '49 000', features: ['Лендинг до 5 экранов', 'Базовый AI-чат', '1 интеграция', 'Поддержка 1 месяц'] },
-  { name: 'Бизнес', price: '149 000', popular: true, features: ['Веб-приложение', 'AI Сварог + расчёт', 'До 5 интеграций', 'Тестировщик в команде', 'Поддержка 6 месяцев'] },
-  { name: 'Корпорация', price: 'от 500 000', features: ['Система под ключ', 'Выделенная команда', 'Безлимит интеграций', 'SLA 24/7', 'Поддержка 12 месяцев'] },
 ];
 
 const FAQ = [
@@ -58,14 +38,6 @@ const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ b
 const Index = () => {
   const navigate = useNavigate();
   const user = getUser();
-  const [selected, setSelected] = useState<number[]>([0, 1]);
-  const [complexity, setComplexity] = useState([3]);
-  const [rush, setRush] = useState(false);
-
-  const base = selected.reduce((sum, i) => sum + SERVICES[i].price, 0);
-  const total = Math.round(base * (1 + complexity[0] * 0.25) * (rush ? 1.4 : 1));
-  const toggle = (i: number) => setSelected((s) => (s.includes(i) ? s.filter((x) => x !== i) : [...s, i]));
-
   const goCabinet = () => navigate(user ? (user.is_admin ? '/admin' : '/dashboard') : '/auth');
 
   return (
@@ -162,84 +134,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CALCULATOR */}
-      <section id="calc" className="py-24 relative grid-bg">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
-        <div className="container relative">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="font-display text-secondary uppercase tracking-widest text-sm">Оценка</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-2 mb-4">Калькулятор заказа</h2>
-            <p className="text-muted-foreground text-lg">Прикиньте стоимость заранее — точный расчёт сделает Сварог в кабинете.</p>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-              {SERVICES.map((s, i) => {
-                const on = selected.includes(i);
-                return (
-                  <button key={s.name} onClick={() => toggle(i)} className={`text-left p-5 rounded-xl border transition-all ${on ? 'border-primary bg-primary/5 neon-border' : 'border-border glass hover:border-primary/40'}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className={`grid place-items-center w-11 h-11 rounded-lg ${on ? 'bg-primary text-primary-foreground' : 'bg-muted text-primary'}`}>
-                        <Icon name={s.icon} size={22} />
-                      </span>
-                      <span className={`w-5 h-5 rounded-md border grid place-items-center ${on ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
-                        {on && <Icon name="Check" size={14} className="text-primary-foreground" />}
-                      </span>
-                    </div>
-                    <div className="font-display font-semibold text-lg">{s.name}</div>
-                    <div className="text-muted-foreground text-sm">{s.price.toLocaleString('ru')} ₽<span className="text-xs">{s.unit}</span></div>
-                  </button>
-                );
-              })}
-            </div>
-            <Card className="glass p-6 neon-border-violet h-fit lg:sticky lg:top-24">
-              <div className="flex items-center gap-2 mb-6">
-                <span className="grid place-items-center w-8 h-8 rounded-lg bg-secondary text-secondary-foreground"><Icon name="Sparkles" size={18} /></span>
-                <span className="font-display font-bold">Расчёт Сварога</span>
-              </div>
-              <div className="mb-6">
-                <div className="flex justify-between text-sm mb-2"><span className="text-muted-foreground">Сложность проекта</span><span className="text-primary font-medium">{complexity[0]} / 5</span></div>
-                <Slider value={complexity} onValueChange={setComplexity} min={1} max={5} step={1} />
-              </div>
-              <div className="flex items-center justify-between py-3 border-y border-border mb-6">
-                <span className="text-sm">Срочный запуск (+40%)</span>
-                <Switch checked={rush} onCheckedChange={setRush} />
-              </div>
-              <div className="p-4 rounded-xl bg-secondary/10 mb-5">
-                <div className="text-sm text-muted-foreground mb-1">Примерно</div>
-                <div className="font-display text-4xl font-bold gradient-text">{total.toLocaleString('ru')} ₽</div>
-              </div>
-              <Button onClick={goCabinet} className="w-full h-12 font-display uppercase tracking-wide">Обсудить со Сварогом</Button>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* PRICING */}
-      <section id="pricing" className="py-24">
-        <div className="container">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="font-display text-primary uppercase tracking-widest text-sm">Тарифы</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-2 mb-4">Выберите масштаб</h2>
-            <p className="text-muted-foreground text-lg">Прозрачные пакеты под любые задачи.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {TARIFFS.map((t) => (
-              <Card key={t.name} className={`glass p-8 relative ${t.popular ? 'neon-border-violet scale-105 z-10' : ''}`}>
-                {t.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-display uppercase tracking-wide">Популярный</span>}
-                <h3 className="font-display text-2xl font-bold mb-2">{t.name}</h3>
-                <div className="font-display text-4xl font-bold gradient-text mb-6">{t.price} ₽</div>
-                <ul className="space-y-3 mb-8">
-                  {t.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm"><Icon name="Check" size={16} className="text-primary mt-0.5 shrink-0" /><span>{f}</span></li>
-                  ))}
-                </ul>
-                <Button onClick={goCabinet} variant={t.popular ? 'default' : 'outline'} className="w-full h-12 font-display uppercase tracking-wide">Выбрать</Button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section id="faq" className="py-24 relative grid-bg">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
@@ -291,7 +185,7 @@ const Index = () => {
             <span className="grid place-items-center w-8 h-8 rounded-lg bg-primary text-primary-foreground"><Icon name="Hexagon" size={18} /></span>
             SVAROG<span className="text-primary">.TECH</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 Svarog.Tech · Разработка ПO с AI</p>
+          <p className="text-sm text-muted-foreground">© 2026 Svarog.Tech · Разработка ПО с AI</p>
         </div>
       </footer>
     </div>
