@@ -185,19 +185,43 @@ const Dashboard = () => {
               </div>
 
               <div ref={chatRef} className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[55vh]">
-                {messages.map((m, i) => (
-                  <div
-                    key={i}
-                    className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
-                      m.role === 'user'
-                        ? 'ml-auto bg-primary text-primary-foreground rounded-tr-sm'
-                        : 'glass rounded-tl-sm'
-                    }`}
-                  >
-                    {m.content}
+                {messages.map((m, i) => {
+                  const isUser = m.role === 'user';
+                  const isOperator = m.role === 'operator';
+                  return (
+                    <div key={i} className={`flex gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                      {!isUser && (
+                        <span className={`grid place-items-center w-7 h-7 rounded-full shrink-0 text-xs font-bold mt-1 ${
+                          isOperator ? 'bg-secondary text-secondary-foreground' : 'bg-primary text-primary-foreground'
+                        }`}>
+                          {isOperator ? 'Н' : 'С'}
+                        </span>
+                      )}
+                      <div className={`flex flex-col max-w-[80%] ${isUser ? 'items-end' : 'items-start'}`}>
+                        {!isUser && (
+                          <span className="text-xs text-muted-foreground mb-1 px-1">
+                            {isOperator ? 'Никита · оператор' : 'Сварог · AI'}
+                          </span>
+                        )}
+                        <div className={`p-3 rounded-2xl text-sm whitespace-pre-wrap ${
+                          isUser
+                            ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                            : isOperator
+                              ? 'bg-secondary/20 border border-secondary/30 rounded-tl-sm'
+                              : 'glass rounded-tl-sm'
+                        }`}>
+                          {m.content}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {loading && (
+                  <div className="flex gap-2">
+                    <span className="grid place-items-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold mt-1">С</span>
+                    <div className="glass p-3 rounded-2xl text-sm text-muted-foreground">Сварог печатает...</div>
                   </div>
-                ))}
-                {loading && <div className="glass max-w-[60%] p-3 rounded-2xl text-sm text-muted-foreground">Сварог печатает...</div>}
+                )}
               </div>
 
               <div className="p-4 border-t border-border flex gap-2">

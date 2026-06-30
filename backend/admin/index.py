@@ -79,6 +79,20 @@ def handler(event: dict, context) -> dict:
         elif action == 'reject':
             cur.execute("UPDATE orders SET status = 'rejected' WHERE id = %s", (order_id,))
             conn.commit(); out = {'ok': True}
+        elif action == 'messages':
+            cur.execute(
+                "SELECT role, content, created_at FROM messages WHERE order_id = %s ORDER BY created_at",
+                (order_id,))
+            out = {'messages': [{'role': r[0], 'content': r[1], 'created_at': str(r[2])} for r in cur.fetchall()]}
+        elif action == 'send':
+            text = (body.get('text') or '').strip()
+            if not text:
+                code = 400; out = {'error': 'Пустое сообщение'}
+            else:
+                cur.execute(
+                    "INSERT INTO messages (order_id, role, content) VALUES (%s, 'operator', %s)",
+                    (order_id, text))
+                conn.commit(); out = {'ok': True}
         elif action == 'prompt':
             cur.execute("SELECT title, description, ai_analysis FROM orders WHERE id = %s", (order_id,))
             r = cur.fetchone()
